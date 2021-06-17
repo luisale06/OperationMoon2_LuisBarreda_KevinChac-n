@@ -41,7 +41,42 @@ def openaboutw():
     
     info.mainloop()
 
+"""Instruction Window______________________________________________________________________________________________________________________________
+___________________________________________________________________________________________________________________________________________
+___________________________________________________________________________________________________________________________________________"""
 
+def openinst():
+    info = Toplevel() #Creates the about window
+    info.title("Instructions") #Gives the window a name
+    info.geometry("675x450") #Dimensions of the window
+
+    """Images___________________________________________________________________________________________________________________________"""
+    bg_label= tk.Label(info, image= bg_instructions)#background image
+    bg_label.place(x=0,y=0)
+    
+    userimage= tk.Label(info, image= userimg, bg = "black")#ship image
+    userimage.place(x=60,y=105)
+    arrowsimage= tk.Label(info, image= arrows, bg = "black")#ship image
+    arrowsimage.place(x=60,y=195)
+    enemyimage= tk.Label(info, image= ufoimg1, bg = "black")#ship image
+    enemyimage.place(x=60,y=305)
+
+    
+    """Basic programmer information Labels"""
+    user_inf = tk.Label(info, font = ("Comic Sans MS", 13), text = "User image, you have 3 lives \n There are 3 levels \n  Each level lasts 60 seconds ", fg = "white", bg = "black"). place(x = 150, y = 85) #User instructions Label
+    move_inf = tk.Label(info, font = ("Comic Sans MS", 13), text = "You move with the arrow keys \n ", fg = "white", bg = "black"). place(x = 200, y = 195) #Move instructions Label
+    enemy_inf = tk.Label(info, font = ("Comic Sans MS", 13), text = "This is the enemy you have to avoid \n Each level has 2 more enemies than the other.", fg = "white", bg = "black"). place(x = 150, y = 335) #Enemy instructions Label
+    
+
+    """Buttons______________________________________________________________________________________________________________________________"""
+    def destroyabout():
+        info.destroy() #finally destroys the window
+        
+    
+    destruir = tk.Button(info, image= back, command = destroyabout, bg= "black"). place(x = 3, y = 5) #button with the "about" window destruction command
+    
+    
+    info.mainloop()
 
 """Top Players Window______________________________________________________________________________________________________________________________
 ___________________________________________________________________________________________________________________________________________
