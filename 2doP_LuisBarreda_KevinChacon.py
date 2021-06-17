@@ -41,46 +41,454 @@ def openaboutw():
     
     info.mainloop()
 
-"""Instruction Window______________________________________________________________________________________________________________________________
-___________________________________________________________________________________________________________________________________________
-___________________________________________________________________________________________________________________________________________"""
 
-def openinst():
-    info = Toplevel() #Creates the about window
-    info.title("Instructions") #Gives the window a name
-    info.geometry("675x450") #Dimensions of the window
-
-    """Images___________________________________________________________________________________________________________________________"""
-    bg_label= tk.Label(info, image= bg_instructions)#background image
-    bg_label.place(x=0,y=0)
-    
-    userimage= tk.Label(info, image= userimg, bg = "black")#ship image
-    userimage.place(x=60,y=105)
-    arrowsimage= tk.Label(info, image= arrows, bg = "black")#ship image
-    arrowsimage.place(x=60,y=195)
-    enemyimage= tk.Label(info, image= ufoimg1, bg = "black")#ship image
-    enemyimage.place(x=60,y=305)
-
-    
-    """Basic instructions information Labels"""
-    user_inf = tk.Label(info, font = ("Comic Sans MS", 13), text = "User image, you have 3 lives \n There are 3 levels \n  Each level lasts 60 seconds ", fg = "white", bg = "black"). place(x = 150, y = 85) #User instructions Label
-    move_inf = tk.Label(info, font = ("Comic Sans MS", 13), text = "You move with the arrow keys \n ", fg = "white", bg = "black"). place(x = 200, y = 195) #Move instructions Label
-    enemy_inf = tk.Label(info, font = ("Comic Sans MS", 13), text = "This is the enemy you have to avoid \n Each level has 2 more enemies than the other.", fg = "white", bg = "black"). place(x = 150, y = 335) #Enemy instructions Label
-    
-
-    """Buttons______________________________________________________________________________________________________________________________"""
-    def destroyabout():
-        info.destroy() #finally destroys the window
-        
-    
-    destruir = tk.Button(info, image= back, command = destroyabout, bg= "black"). place(x = 3, y = 5) #button with the "about" window destruction command
-    
-    
-    info.mainloop()
 
 """Top Players Window______________________________________________________________________________________________________________________________
 ___________________________________________________________________________________________________________________________________________
 ___________________________________________________________________________________________________________________________________________"""
+
+
+"""Game1 Window______________________________________________________________________________________________________________________________
+___________________________________________________________________________________________________________________________________________
+___________________________________________________________________________________________________________________________________________"""
+
+def game1():
+    game = Toplevel() #creates the game window
+    game.title("Operation Moon Light 2") #gives the game window a title
+    game.geometry("630x750") #gives the game window its dimensions
+    game.configure(background = "midnightblue") #configure the window background color
+    game.resizable(False, False)
+    
+    """Canvas widget_______________________________________________________________________________________________________________"""
+    gamecanvas = Canvas(game, width = 450, height = 650) #create the canvas widget where the animation is going to occu
+    spacebg = gamecanvas.create_image(230, 350, image = space)
+    user = gamecanvas.create_image(240, 500, image = userimg) #user's spaceship
+
+    """User's life functions____________________________________________________________________________________________________________"""
+    def ulifeassignation():
+        ulifeindicator.config(text = "Life: " + str(userlife)) #set the actual user life points to the tag that show them
+
+    """Destruction of the game window_______________________________________________________________________________________________________________"""
+    def destroygame():
+        #reset all the values for future uses if the window isn't closed
+        global second
+        global score
+        global userlife
+        userlife = 3
+        score = 0
+        second = 0
+        game.destroy() #destroy the game window by the 'main menu' button
+
+    """Obstacles movement function and timer function thread_________________________________________________________________________"""
+    def startthread():
+        obstacle1 = Thread(target = create_obs1, args = ()) #thread that calls the function that produces the movement
+        obstacle1.start() #starts the movement thread
+        obstacle2 = Thread(target = create_obs2, args = ()) #thread that calls the function that produces the movement
+        obstacle2.start() #starts the movement thread
+        obstacle3 = Thread(target = create_obs3, args = ()) #thread that calls the function that produces the movement
+        obstacle3.start() #starts the movement thread
+        timer = Thread(target = starttimer, args = ()) #thread that calls the function of the timer
+        timer.start() #starts the timer thread
+    
+    """Timer Functions_______________________________________________________________________________________________________________"""
+    def starttimer():
+        global second
+        global score
+        global userlife
+        global score2
+        
+        while True:
+            if second == 60:
+                score2 = score
+                nextth = Thread(target = destroygame, args = ()) #thread that calls the destroygame function
+                nextth.start() #start the thread
+                messagebox.showinfo(message = 'YOU WON!  Your score is: ' + str(score2) + '. Keep going')
+                level2th = Thread(target = game2, args = ()) #thread that calls the destroygame function
+                level2th.start() #start the thread
+            else:
+                time.sleep(1)
+                second += 1
+                score += 1
+                countdown.config(text = "Timer: " + str(second)) #set the actual time to the tag that shows it
+                scoreindicator.config(text = "Score: " + str(score)) #set the actual score to the tag that shows it
+            
+    """Obstacle movement_______________________________________________________________________________________________________"""
+    def create_obs1():
+        ufo1 = gamecanvas.create_image(18, 50, image = ufoimg)
+        move_obstacle(ufo1)
+        
+    def create_obs2():
+        ufo2 = gamecanvas.create_image(200, 50, image = ufoimg)
+        move_obstacle(ufo2)
+        
+    def create_obs3():
+        ufo3 = gamecanvas.create_image(400, 50, image = ufoimg)
+        move_obstacle(ufo3)
+        
+    def move_obstacle(ufo):
+        global userlife
+        global score
+        
+        x = random.randint(10, 20)
+        y = random.randint(10, 20)
+        
+        while True:
+            ufopos = gamecanvas.coords(ufo) #canvas function that receives the coordinates of the obstacles
+            userpos = gamecanvas.coords(user) #canvas function that receives the coordinates of the user's spaceship
+            randact = random.randint(0, 10)
+            
+            if ufopos[0] + 18 >= 450: #if the obstacle reaches the right edge, it moves randomly
+                pygame.mixer.init() #initialize the mixer
+                mixer.music.load('metalhit.mp3') #loads the metalhit sound
+                mixer.music.play() #plays the sound
+                time.sleep(0.1)
+                x = - random.randint(10, 20)
+                if randact % 3 == 0:
+                    y = -y
+                    gamecanvas.move(ufo, x, y)
+                else:
+                    gamecanvas.move(ufo, x, y)
+    
+            elif ufopos[0] - 18 <= 0: #if the obstacle reaches the left edge, it moves randomly
+                pygame.mixer.init() #initialize the mixer
+                mixer.music.load('metalhit.mp3') #loads the metalhit sound
+                mixer.music.play() #plays the sound
+                time.sleep(0.1)
+                x = random.randint(10, 20)
+                if randact % 3 == 0:
+                    y = -y
+                    gamecanvas.move(ufo, x, y)
+                else:
+                    gamecanvas.move(ufo, x, y)
+            
+            elif ufopos[1] + 18 >= 650: #if the obstacle reaches the lower edge, it moves randomly
+                pygame.mixer.init() #initialize the mixer
+                mixer.music.load('metalhit.mp3') #loads the metalhit sound
+                mixer.music.play() #plays the sound
+                time.sleep(0.1)
+                y = - random.randint(10, 20)
+                if randact % 3 == 0:
+                    x = -x
+                    gamecanvas.move(ufo, x, y)
+                else:
+                    gamecanvas.move(ufo, x, y)
+                
+            elif ufopos[1] - 18 <= 0: #if the obstacle reaches the upper edge, it moves randomly
+                pygame.mixer.init() #initialize the mixer
+                mixer.music.load('metalhit.mp3') #loads the metalhit sound
+                mixer.music.play() #plays the sound
+                time.sleep(0.1)
+                y = random.randint(10, 20)
+                if randact % 3 == 0:
+                    x = -x
+                    gamecanvas.move(ufo, x, y)
+                else:
+                    gamecanvas.move(ufo, x, y)
+                    
+            elif (int(ufopos[0]) in range(int(userpos[0] - 30), int(userpos[0] + 30))) and (int(ufopos[1]) in range(int(userpos[1] - 36), int(userpos[1] + 36))):
+                time.sleep(0.1)
+                userlife -= 1 #subtracts 1 life point from the userlife variable
+                ulifeth = Thread(target = ulifeassignation, args = ()) #thread that calls the function of the user's life modification
+                ulifeth.start() #starts the user's life modification thread
+                pygame.mixer.init() #initialize the mixer
+                mixer.music.load('hitmarker.mp3') #loads the hitmarker sound
+                mixer.music.play() #plays the sound
+                if userlife <= 0:
+                    time.sleep(0.5)
+                    pygame.mixer.init() #initialize the mixer
+                    mixer.music.load('explosionsound.wav') #loads the explosion sound
+                    mixer.music.play() #plays the sound
+                    gamecanvas.delete(user) #deletes the user
+                    time.sleep(1)
+                    loseth = Thread(target = destroygame, args = ()) #thread that calls the destroygame function
+                    loseth.start() #start the thread
+                else:
+                    gamecanvas.delete(ufo) #deletes the ufo
+                    break
+            else:
+                time.sleep(0.1)
+                gamecanvas.move(ufo, x, y)
+
+
+    """Keys functions________________________________________________________________________________________________________________________"""
+    #x and y are the number of positions the user's spaceship is going to move from its original position
+    def left(event):
+        x = -20 
+        y = 0
+        gamecanvas.move(user, x, y) #moves the ship -20 spaces in the x direction and 0 spaces in the y direction, from its original position
+
+    def right(event):
+        x = 20
+        y = 0
+        gamecanvas.move(user, x, y) #moves the ship 20 spaces in the x direction and 0 spaces in the y direction, from its original position
+
+    def up(event):
+        x = 0
+        y = -20
+        gamecanvas.move(user, x, y) #moves the ship 0 spaces in the x direction and -20 spaces in the y direction, from its original position
+
+    def down(event):
+        x = 0
+        y = 20
+        gamecanvas.move(user, x, y) #moves the ship 0 spaces in the x direction and 20 spaces in the y direction, from its original position
+                        
+    """Keys Binding______________________________________________________________________________________________________________________"""
+
+    game.bind("<Left>", left) #binds the left key to the left movement function
+    game.bind("<Right>", right) #binds the right key to the left movement function
+    game.bind("<Up>", up) #binds the up key to the left movement function
+    game.bind("<Down>", down) #binds the down key to the left movement function
+    
+    """Buttons of the game window___________________________________________________________________________________________________________"""
+    startgame = tk.Button(game, text = "Start", font = ("Comic Sans MS", 10), bg = "white", fg = "midnightblue", command = startthread)
+    startgame.place(x = 50, y = 10) #start the game
+    
+    game_mainnmenu = tk.Button(game, text = "Main Menu", font = ("Comic Sans MS", 10), bg = "white", fg = "midnightblue", command = destroygame)
+    game_mainnmenu.place(x = 110, y = 10) #return to the main menu, losing the user's record
+    
+    """Labels of the game window___________________________________________________________________________________________________________"""    
+    n = name.get() #Gets the user's name
+    username = tk.Label(game, text = "User: " + n, font = ("Comic Sans MS", 10), fg = "ghostwhite", bg = "midnightblue")
+    username.place(x = 510, y = 100) #Label where the user's name is written
+
+    countdown = tk.Label(game, text = "Timer: " + str(second), font = ("Comic Sans MS", 10), fg = "ghostwhite", bg = "midnightblue") #Label where the time is written
+    countdown.place(x = 510, y = 140) #place the timer label
+
+    scoreindicator = tk.Label(game, text = "Score: " + str(score), font = ("Comic Sans MS", 10), fg = "ghostwhite", bg = "midnightblue") #Label where the score is written
+    scoreindicator.place(x = 510, y = 180) #place the score label
+    
+    ulifeindicator = tk.Label(game, text = "Life: " + str(userlife), font = ("Comic Sans MS", 10), fg = "ghostwhite", bg = "midnightblue") #Label where the user's life is written
+    ulifeindicator.place(x = 510, y = 220) #place the user's life label
+    
+    """Canvas configuration_________________________________________________________________________________________________________________"""
+    gamecanvas.place(x = 50, y = 50) #place the canvas widget  
+    game.mainloop()
+
+"""Game 2 Window______________________________________________________________________________________________________________________________
+___________________________________________________________________________________________________________________________________________
+___________________________________________________________________________________________________________________________________________"""
+def game2():
+    game = Toplevel() #creates the game window
+    game.title("Operation Moon Light 2") #gives the game window a title
+    game.geometry("630x750") #gives the game window its dimensions
+    game.configure(background = "midnightblue") #configure the window background color
+    game.resizable(False, False)
+    
+    """Canvas widget_______________________________________________________________________________________________________________"""
+    gamecanvas = Canvas(game, width = 450, height = 650) #create the canvas widget where the animation is going to occu
+    spacebg = gamecanvas.create_image(230, 350, image = space)
+    user = gamecanvas.create_image(240, 500, image = userimg) #user's spaceship
+
+    """User's life functions____________________________________________________________________________________________________________"""
+    def ulifeassignation():
+        ulifeindicator.config(text = "Life: " + str(userlife)) #set the actual user life points to the tag that show them
+
+    """Destruction of the game window_______________________________________________________________________________________________________________"""
+    def destroygame():
+        #reset all the values for future uses if the window isn't closed
+        global second
+        global score2
+        global userlife
+        userlife = 3
+        score2 = 0
+        second = 0
+        game.destroy() #destroy the game window by the 'main menu' button
+
+    """Obstacles movement function and timer function thread_________________________________________________________________________"""
+    def startthread():
+        obstacle1 = Thread(target = create_obs1, args = ()) #thread that calls the function that produces the movement
+        obstacle1.start() #starts the movement thread
+        obstacle2 = Thread(target = create_obs2, args = ()) #thread that calls the function that produces the movement
+        obstacle2.start() #starts the movement thread
+        obstacle3 = Thread(target = create_obs3, args = ()) #thread that calls the function that produces the movement
+        obstacle3.start() #starts the movement thread
+        obstacle4 = Thread(target = create_obs4, args = ()) #thread that calls the function that produces the movement
+        obstacle4.start() #starts the movement thread
+        obstacle5 = Thread(target = create_obs5, args = ()) #thread that calls the function that produces the movement
+        obstacle5.start() #starts the movement thread
+        timer = Thread(target = starttimer, args = ()) #thread that calls the function of the timer
+        timer.start() #starts the timer thread
+    
+    """Timer Functions_______________________________________________________________________________________________________________"""
+    def starttimer():
+        global second
+        global score2
+        global userlife
+        global score3
+        
+        while True:
+            if second == 61:
+                score3 = score2
+                nextth = Thread(target = destroygame, args = ()) #thread that calls the destroygame function
+                nextth.start() #start the thread
+                messagebox.showinfo(message = 'YOU WON!  Your score is: ' + str(score3) + '. Keep going')
+                level3th = Thread(target = game3, args = ()) #thread that calls the destroygame function
+                level3th.start() #start the thread
+            else:
+                time.sleep(1)
+                second += 1
+                score2 += 3
+                countdown.config(text = "Timer: " + str(second)) #set the actual time to the tag that shows it
+                scoreindicator.config(text = "Score: " + str(score2)) #set the actual score to the tag that shows it
+            
+    """Obstacle movement_______________________________________________________________________________________________________"""
+    def create_obs1():
+        ufo1 = gamecanvas.create_image(18, 50, image = ufoimg)
+        move_obstacle(ufo1)
+        
+    def create_obs2():
+        ufo2 = gamecanvas.create_image(118, 50, image = ufoimg)
+        move_obstacle(ufo2)
+        
+    def create_obs3():
+        ufo3 = gamecanvas.create_image(218, 50, image = ufoimg)
+        move_obstacle(ufo3)
+
+    def create_obs4():
+        ufo4 = gamecanvas.create_image(318, 50, image = ufoimg)
+        move_obstacle(ufo4)
+
+    def create_obs5():
+        ufo5 = gamecanvas.create_image(418, 50, image = ufoimg)
+        move_obstacle(ufo5)
+        
+    def move_obstacle(ufo):
+        global userlife
+        global score2
+        x = random.randint(10, 20)
+        y = random.randint(10, 20)
+        
+        while True:
+            ufopos = gamecanvas.coords(ufo) #canvas function that receives the coordinates of the obstacles
+            userpos = gamecanvas.coords(user) #canvas function that receives the coordinates of the user's spaceship
+            randact = random.randint(0, 10)
+            
+            if ufopos[0] + 18 >= 450: #if the obstacle reaches the right edge, it moves randomly
+                pygame.mixer.init() #initialize the mixer
+                mixer.music.load('metalhit.mp3') #loads the metalhit sound
+                mixer.music.play() #plays the sound
+                time.sleep(0.1)
+                x = - random.randint(10, 20)
+                if randact % 3 == 0:
+                    y = -y
+                    gamecanvas.move(ufo, x, y)
+                else:
+                    gamecanvas.move(ufo, x, y)
+    
+            elif ufopos[0] - 18 <= 0: #if the obstacle reaches the left edge, it moves randomly
+                pygame.mixer.init() #initialize the mixer
+                mixer.music.load('metalhit.mp3') #loads the metalhit sound
+                mixer.music.play() #plays the sound
+                time.sleep(0.1)
+                x = random.randint(10, 20)
+                if randact % 3 == 0:
+                    y = -y
+                    gamecanvas.move(ufo, x, y)
+                else:
+                    gamecanvas.move(ufo, x, y)
+            
+            elif ufopos[1] + 18 >= 650: #if the obstacle reaches the lower edge, it moves randomly
+                pygame.mixer.init() #initialize the mixer
+                mixer.music.load('metalhit.mp3') #loads the metalhit sound
+                mixer.music.play() #plays the sound
+                time.sleep(0.1)
+                y = - random.randint(10, 20)
+                if randact % 3 == 0:
+                    x = -x
+                    gamecanvas.move(ufo, x, y)
+                else:
+                    gamecanvas.move(ufo, x, y)
+                
+            elif ufopos[1] - 18 <= 0: #if the obstacle reaches the upper edge, it moves randomly
+                pygame.mixer.init() #initialize the mixer
+                mixer.music.load('metalhit.mp3') #loads the metalhit sound
+                mixer.music.play() #plays the sound
+                time.sleep(0.1)
+                y = random.randint(10, 20)
+                if randact % 3 == 0:
+                    x = -x
+                    gamecanvas.move(ufo, x, y)
+                else:
+                    gamecanvas.move(ufo, x, y)
+                    
+            elif (int(ufopos[0]) in range(int(userpos[0] - 30), int(userpos[0] + 30))) and (int(ufopos[1]) in range(int(userpos[1] - 36), int(userpos[1] + 36))):
+                time.sleep(0.1)
+                userlife -= 1 #subtracts 1 life point from the userlife variable
+                ulifeth = Thread(target = ulifeassignation, args = ()) #thread that calls the function of the user's life modification
+                ulifeth.start() #starts the user's life modification thread
+                pygame.mixer.init() #initialize the mixer
+                mixer.music.load('hitmarker.mp3') #loads the hitmarker sound
+                mixer.music.play() #plays the sound
+                if userlife <= 0:
+                    time.sleep(0.5)
+                    pygame.mixer.init() #initialize the mixer
+                    mixer.music.load('explosionsound.wav') #loads the explosion sound
+                    mixer.music.play() #plays the sound
+                    gamecanvas.delete(user) #deletes the user
+                    time.sleep(1)
+                    loseth = Thread(target = destroygame, args = ()) #thread that calls the destroygame function
+                    loseth.start() #start the thread
+                else:
+                    gamecanvas.delete(ufo) #deletes the ufo
+                    break
+            else:
+                time.sleep(0.1)
+                gamecanvas.move(ufo, x, y)
+
+
+    """Keys functions________________________________________________________________________________________________________________________"""
+    #x and y are the number of positions the user's spaceship is going to move from its original position
+    def left(event):
+        x = -20 
+        y = 0
+        gamecanvas.move(user, x, y) #moves the ship -20 spaces in the x direction and 0 spaces in the y direction, from its original position
+
+    def right(event):
+        x = 20
+        y = 0
+        gamecanvas.move(user, x, y) #moves the ship 20 spaces in the x direction and 0 spaces in the y direction, from its original position
+
+    def up(event):
+        x = 0
+        y = -20
+        gamecanvas.move(user, x, y) #moves the ship 0 spaces in the x direction and -20 spaces in the y direction, from its original position
+
+    def down(event):
+        x = 0
+        y = 20
+        gamecanvas.move(user, x, y) #moves the ship 0 spaces in the x direction and 20 spaces in the y direction, from its original position
+                        
+    """Keys Binding______________________________________________________________________________________________________________________"""
+
+    game.bind("<Left>", left) #binds the left key to the left movement function
+    game.bind("<Right>", right) #binds the right key to the left movement function
+    game.bind("<Up>", up) #binds the up key to the left movement function
+    game.bind("<Down>", down) #binds the down key to the left movement function
+    
+    """Buttons of the game window___________________________________________________________________________________________________________"""
+    startgame = tk.Button(game, text = "Start", font = ("Comic Sans MS", 10), bg = "white", fg = "midnightblue", command = startthread)
+    startgame.place(x = 50, y = 10) #start the game
+    
+    game_mainnmenu = tk.Button(game, text = "Main Menu", font = ("Comic Sans MS", 10), bg = "white", fg = "midnightblue", command = destroygame)
+    game_mainnmenu.place(x = 110, y = 10) #return to the main menu, losing the user's record
+    
+    """Labels of the game window___________________________________________________________________________________________________________"""    
+    n = name.get() #Gets the user's name
+    username = tk.Label(game, text = "User: " + n, font = ("Comic Sans MS", 10), fg = "ghostwhite", bg = "midnightblue")
+    username.place(x = 510, y = 100) #Label where the user's name is written
+
+    countdown = tk.Label(game, text = "Timer: " + str(second), font = ("Comic Sans MS", 10), fg = "ghostwhite", bg = "midnightblue") #Label where the time is written
+    countdown.place(x = 510, y = 140) #place the timer label
+
+    scoreindicator = tk.Label(game, text = "Score: " + str(score2), font = ("Comic Sans MS", 10), fg = "ghostwhite", bg = "midnightblue") #Label where the score is written
+    scoreindicator.place(x = 510, y = 180) #place the score label
+    
+    ulifeindicator = tk.Label(game, text = "Life: " + str(userlife), font = ("Comic Sans MS", 10), fg = "ghostwhite", bg = "midnightblue") #Label where the user's life is written
+    ulifeindicator.place(x = 510, y = 220) #place the user's life label
+    
+    """Canvas configuration_________________________________________________________________________________________________________________"""
+    gamecanvas.place(x = 50, y = 50) #place the canvas widget  
+    game.mainloop()
 
 """Main Window______________________________________________________________________________________________________________________________
 ___________________________________________________________________________________________________________________________________________
