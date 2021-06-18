@@ -8,7 +8,7 @@ import random
 import sys
 import pygame
 from pygame import mixer
-sys.setrecursionlimit(3000)
+sys.setrecursionlimit(5000)
 
 """About Window______________________________________________________________________________________________________________________________
 ___________________________________________________________________________________________________________________________________________
@@ -81,7 +81,11 @@ def openinst():
 """Top Players Window______________________________________________________________________________________________________________________________
 ___________________________________________________________________________________________________________________________________________
 ___________________________________________________________________________________________________________________________________________"""
-
+def opentop():
+    archive = open('Top7.txt', "r")
+    data = [line.rstrip('\n').split(':') for line in archive]
+    print(data)
+    messagebox.showinfo(message = '1. ' + str((data[1][0], data[10][0])) + '\n' + '2. ' + str((data[2][0], data[11][0])) + '\n' + '3. ' + str((data[3][0], data[12][0])) + '\n' + '4. ' + str((data[4][0], data[13][0])) + '\n' + '5. ' + str((data[5][0], data[14][0])) + '\n' + '6. ' + str((data[6][0], data[15][0])) + '\n' + '7. ' + str((data[7][0], data[16][0])), title = 'Top 7 Players') #opens the message box with the top 7 players
 
 """Game1 Window______________________________________________________________________________________________________________________________
 ___________________________________________________________________________________________________________________________________________
@@ -103,6 +107,113 @@ def game1():
     def ulifeassignation():
         ulifeindicator.config(text = "Life: " + str(userlife)) #set the actual user life points to the tag that show them
 
+    """Top 7 Set_____________________________________________________________________________________________________________________"""
+    def top7set():
+        top7 = top7txt()
+        with open('Top7.txt', 'w') as update:
+            for i in top7: #cycle that writes down the information in the .txt
+                update.write(str(i))
+                update.write("\n")
+    
+    def top7txt():
+        alltext = []
+        with open('Top7.txt', 'r') as top7:
+            for line in top7.readlines():
+                alltext.append(line)
+
+        allminusn = []
+        for line in alltext:
+            minusn = line.replace("\n", "")
+            allminusn.append(minusn)
+
+        scoreonly = allminusn
+        n = 10
+        while n != 0:
+            scoreonly = scoreonly[1: ]
+            n -= 1
+
+        nameonly = []
+        m = 0
+        for m in range(1, 8):
+            nameonly = nameonly + [allminusn[m]]
+            m += 1
+
+        intscores = []
+        i = 0
+        scores = 7
+        while i != scores:
+            intscores.append(int(scoreonly[i]))
+            i += 1
+
+
+        '''Quick Sort Algorithm'''
+        def partition(arr, low, high):
+            i = (low-1)         # index of smaller element
+            pivot = arr[high]     # pivot
+          
+            for j in range(low, high):
+          
+                # If current element is smaller than or
+                # equal to pivot
+                if arr[j] <= pivot:
+          
+                    # increment index of smaller element
+                    i = i+1
+                    arr[i], arr[j] = arr[j], arr[i]
+          
+            arr[i+1], arr[high] = arr[high], arr[i+1]
+            return (i+1)
+          
+        # The main function that implements QuickSort
+        # arr[] --> Array to be sorted,
+        # low  --> Starting index,
+        # high  --> Ending index
+          
+        # Function to do Quick sort
+          
+          
+        def quickSort(arr, low, high):
+            if len(arr) == 1:
+                return arr
+            if low < high:
+          
+                # pi is partitioning index, arr[p] is now
+                # at right place
+                pi = partition(arr, low, high)
+          
+                # Separately sort elements before
+                # partition and after partition
+                quickSort(arr, low, pi-1)
+                quickSort(arr, pi+1, high)
+
+
+        def check(score, sclist):
+                if sclist == []:
+                        return False
+                elif score > sclist[0]:
+                        return True
+                else:
+                        return check(score, sclist[1:])
+
+
+        top7 = (nameonly, intscores) #tuple with names and scores
+        names = top7[0] #names list
+        scores = top7[1] #scores list
+        user_name = str(name.get())
+        user_score = score
+        check = check(user_score, scores)
+        if check == True:
+                scores.append(user_score) #append the user's score
+                n = len(scores) - 1 #variable for quick sort method
+                sort = quickSort(scores, 0, n) #sorts the new list
+                scores.reverse() #inverts the order of the array
+                i = scores.index(user_score) #takes the new score's index
+                names.insert(i, user_name) #adds the username in the index of the user score
+                names = names[: -1] #finally, deletes the least score and name
+                scores = scores[: -1]
+        fortxt = ["Top 7 Players by score"] + names + [""] + ["Respective score"] + scores
+        return fortxt
+    
     """Destruction of the game window_______________________________________________________________________________________________________________"""
     def destroygame():
         #reset all the values for future uses if the window isn't closed
@@ -163,6 +274,7 @@ def game1():
     def move_obstacle(ufo):
         global userlife
         global score
+        global score2
         
         x = random.randint(10, 20)
         y = random.randint(10, 20)
@@ -229,6 +341,9 @@ def game1():
                 mixer.music.load('hitmarker.mp3') #loads the hitmarker sound
                 mixer.music.play() #plays the sound
                 if userlife <= 0:
+                    top7th = Thread(target = top7set, args = ()) #thread that calls the function of the top7 modification
+                    top7th.start() #starts the top7 modification thread
+                    score2 = score
                     time.sleep(0.5)
                     pygame.mixer.init() #initialize the mixer
                     mixer.music.load('explosionsound.wav') #loads the explosion sound
@@ -317,7 +432,114 @@ def game2():
     """User's life functions____________________________________________________________________________________________________________"""
     def ulifeassignation():
         ulifeindicator.config(text = "Life: " + str(userlife)) #set the actual user life points to the tag that show them
+    
+    """Top 7 Set_____________________________________________________________________________________________________________________"""
+    def top7set():
+        top7 = top7txt()
+        with open('Top7.txt', 'w') as update:
+            for i in top7: #cycle that writes down the information in the .txt
+                update.write(str(i))
+                update.write("\n")
+    
+    def top7txt():
+        alltext = []
+        with open('Top7.txt', 'r') as top7:
+            for line in top7.readlines():
+                alltext.append(line)
 
+        allminusn = []
+        for line in alltext:
+            minusn = line.replace("\n", "")
+            allminusn.append(minusn)
+
+        scoreonly = allminusn
+        n = 10
+        while n != 0:
+            scoreonly = scoreonly[1: ]
+            n -= 1
+
+        nameonly = []
+        m = 0
+        for m in range(1, 8):
+            nameonly = nameonly + [allminusn[m]]
+            m += 1
+
+        intscores = []
+        i = 0
+        scores = 7
+        while i != scores:
+            intscores.append(int(scoreonly[i]))
+            i += 1
+
+
+        '''Quick Sort Algorithm'''
+        def partition(arr, low, high):
+            i = (low-1)         # index of smaller element
+            pivot = arr[high]     # pivot
+          
+            for j in range(low, high):
+          
+                # If current element is smaller than or
+                # equal to pivot
+                if arr[j] <= pivot:
+          
+                    # increment index of smaller element
+                    i = i+1
+                    arr[i], arr[j] = arr[j], arr[i]
+          
+            arr[i+1], arr[high] = arr[high], arr[i+1]
+            return (i+1)
+          
+        # The main function that implements QuickSort
+        # arr[] --> Array to be sorted,
+        # low  --> Starting index,
+        # high  --> Ending index
+          
+        # Function to do Quick sort
+          
+          
+        def quickSort(arr, low, high):
+            if len(arr) == 1:
+                return arr
+            if low < high:
+          
+                # pi is partitioning index, arr[p] is now
+                # at right place
+                pi = partition(arr, low, high)
+          
+                # Separately sort elements before
+                # partition and after partition
+                quickSort(arr, low, pi-1)
+                quickSort(arr, pi+1, high)
+
+
+        def check(score, sclist):
+                if sclist == []:
+                        return False
+                elif score > sclist[0]:
+                        return True
+                else:
+                        return check(score, sclist[1:])
+
+
+        top7 = (nameonly, intscores) #tuple with names and scores
+        names = top7[0] #names list
+        scores = top7[1] #scores list
+        user_name = str(name.get())
+        user_score = score2
+        check = check(user_score, scores)
+        if check == True:
+                scores.append(user_score) #append the user's score
+                n = len(scores) - 1 #variable for quick sort method
+                sort = quickSort(scores, 0, n) #sorts the new list
+                scores.reverse() #inverts the order of the array
+                i = scores.index(user_score) #takes the new score's index
+                names.insert(i, user_name) #adds the username in the index of the user score
+                names = names[: -1] #finally, deletes the least score and name
+                scores = scores[: -1]
+        fortxt = ["Top 7 Players by score"] + names + [""] + ["Respective score"] + scores
+        return fortxt
+    
     """Destruction of the game window_______________________________________________________________________________________________________________"""
     def destroygame():
         #reset all the values for future uses if the window isn't closed
@@ -390,6 +612,8 @@ def game2():
     def move_obstacle(ufo):
         global userlife
         global score2
+        global score3
+        
         x = random.randint(10, 20)
         y = random.randint(10, 20)
         
@@ -455,6 +679,9 @@ def game2():
                 mixer.music.load('hitmarker.mp3') #loads the hitmarker sound
                 mixer.music.play() #plays the sound
                 if userlife <= 0:
+                    top7th = Thread(target = top7set, args = ()) #thread that calls the function of the top7 modification
+                    top7th.start() #starts the top7 modification thread
+                    score3 = score2
                     time.sleep(0.5)
                     pygame.mixer.init() #initialize the mixer
                     mixer.music.load('explosionsound.wav') #loads the explosion sound
@@ -524,6 +751,8 @@ def game2():
     """Canvas configuration_________________________________________________________________________________________________________________"""
     gamecanvas.place(x = 50, y = 50) #place the canvas widget  
     game.mainloop()
+    
+    
 """Game 3 Window______________________________________________________________________________________________________________________________
 ___________________________________________________________________________________________________________________________________________
 ___________________________________________________________________________________________________________________________________________"""
@@ -543,6 +772,113 @@ def game3():
     def ulifeassignation():
         ulifeindicator.config(text = "Life: " + str(userlife)) #set the actual user life points to the tag that show them
 
+    """Top 7 Set_____________________________________________________________________________________________________________________"""
+    def top7set():
+        top7 = top7txt()
+        with open('Top7.txt', 'w') as update:
+            for i in top7: #cycle that writes down the information in the .txt
+                update.write(str(i))
+                update.write("\n")
+    
+    def top7txt():
+        alltext = []
+        with open('Top7.txt', 'r') as top7:
+            for line in top7.readlines():
+                alltext.append(line)
+
+        allminusn = []
+        for line in alltext:
+            minusn = line.replace("\n", "")
+            allminusn.append(minusn)
+
+        scoreonly = allminusn
+        n = 10
+        while n != 0:
+            scoreonly = scoreonly[1: ]
+            n -= 1
+
+        nameonly = []
+        m = 0
+        for m in range(1, 8):
+            nameonly = nameonly + [allminusn[m]]
+            m += 1
+
+        intscores = []
+        i = 0
+        scores = 7
+        while i != scores:
+            intscores.append(int(scoreonly[i]))
+            i += 1
+
+
+        '''Quick Sort Algorithm'''
+        def partition(arr, low, high):
+            i = (low-1)         # index of smaller element
+            pivot = arr[high]     # pivot
+          
+            for j in range(low, high):
+          
+                # If current element is smaller than or
+                # equal to pivot
+                if arr[j] <= pivot:
+          
+                    # increment index of smaller element
+                    i = i+1
+                    arr[i], arr[j] = arr[j], arr[i]
+          
+            arr[i+1], arr[high] = arr[high], arr[i+1]
+            return (i+1)
+          
+        # The main function that implements QuickSort
+        # arr[] --> Array to be sorted,
+        # low  --> Starting index,
+        # high  --> Ending index
+          
+        # Function to do Quick sort
+          
+          
+        def quickSort(arr, low, high):
+            if len(arr) == 1:
+                return arr
+            if low < high:
+          
+                # pi is partitioning index, arr[p] is now
+                # at right place
+                pi = partition(arr, low, high)
+          
+                # Separately sort elements before
+                # partition and after partition
+                quickSort(arr, low, pi-1)
+                quickSort(arr, pi+1, high)
+
+
+        def check(score, sclist):
+                if sclist == []:
+                        return False
+                elif score > sclist[0]:
+                        return True
+                else:
+                        return check(score, sclist[1:])
+
+
+        top7 = (nameonly, intscores) #tuple with names and scores
+        names = top7[0] #names list
+        scores = top7[1] #scores list
+        user_name = str(name.get())
+        user_score = score3
+        check = check(user_score, scores)
+        if check == True:
+                scores.append(user_score) #append the user's score
+                n = len(scores) - 1 #variable for quick sort method
+                sort = quickSort(scores, 0, n) #sorts the new list
+                scores.reverse() #inverts the order of the array
+                i = scores.index(user_score) #takes the new score's index
+                names.insert(i, user_name) #adds the username in the index of the user score
+                names = names[: -1] #finally, deletes the least score and name
+                scores = scores[: -1]
+        fortxt = ["Top 7 Players by score"] + names + [""] + ["Respective score"] + scores
+        return fortxt
+    
     """Destruction of the game window_______________________________________________________________________________________________________________"""
     def destroygame():
         #reset all the values for future uses if the window isn't closed
@@ -582,6 +918,9 @@ def game3():
         
         while True:
             if second == 61:
+                top7th = Thread(target = top7set, args = ()) #thread that calls the function of the top7 modification
+                top7th.start() #starts the top7 modification thread
+                time.sleep(1.5)
                 score4 = score3
                 nextth = Thread(target = destroygame, args = ()) #thread that calls the destroygame function
                 nextth.start() #start the thread
@@ -626,6 +965,7 @@ def game3():
     def move_obstacle(ufo):
         global userlife
         global score3
+        global score4
 
         x = random.randint(10, 20)
         y = random.randint(10, 20)
@@ -692,6 +1032,8 @@ def game3():
                 mixer.music.load('hitmarker.mp3') #loads the hitmarker sound
                 mixer.music.play() #plays the sound
                 if userlife <= 0:
+                    top7th = Thread(target = top7set, args = ()) #thread that calls the function of the top7 modification
+                    top7th.start() #starts the top7 modification thread
                     time.sleep(0.5)
                     pygame.mixer.init() #initialize the mixer
                     mixer.music.load('explosionsound.wav') #loads the explosion sound
