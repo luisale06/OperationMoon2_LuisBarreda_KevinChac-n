@@ -84,7 +84,6 @@ ________________________________________________________________________________
 def opentop():
     archive = open('Top7.txt', "r")
     data = [line.rstrip('\n').split(':') for line in archive]
-    print(data)
     messagebox.showinfo(message = '1. ' + str((data[1][0], data[10][0])) + '\n' + '2. ' + str((data[2][0], data[11][0])) + '\n' + '3. ' + str((data[3][0], data[12][0])) + '\n' + '4. ' + str((data[4][0], data[13][0])) + '\n' + '5. ' + str((data[5][0], data[14][0])) + '\n' + '6. ' + str((data[6][0], data[15][0])) + '\n' + '7. ' + str((data[7][0], data[16][0])), title = 'Top 7 Players') #opens the message box with the top 7 players
 
 """Game1 Window______________________________________________________________________________________________________________________________
