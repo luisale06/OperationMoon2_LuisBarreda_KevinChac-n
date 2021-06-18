@@ -1,0 +1,17 @@
+Top 7 Players by score
+Marty
+Sebas
+Mariana
+Coco
+Cris
+Nick
+Fer
+
+Respective score
+305
+285
+275
+250
+205
+110
+90
