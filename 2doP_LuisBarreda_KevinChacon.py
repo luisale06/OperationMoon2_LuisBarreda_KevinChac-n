@@ -1154,7 +1154,7 @@ level2 = tk.Button(mw, image= medium, bg = "black", command = game2) .place(x=21
 level3 = tk.Button(mw, image= hard, bg = "black", command = game3) .place(x=295, y=130) #Opens the level 3 window
 
 btn_about = tk.Button(mw, image= about, command = openaboutw,  bg = "black") .place(x=135, y=190) #Opens the about window
-btn_top = tk.Button(mw, image= top, bg = "black", command = game2) .place(x=215, y=190) #Opens the top window
+btn_top = tk.Button(mw, image= top, bg = "black", command = opentop) .place(x=215, y=190) #Opens the top window
 btn_instructions = tk.Button(mw, image= instructions, bg = "black",command = openinst) .place(x=295, y=190) #Opens the instructions window
 
 second = 0
